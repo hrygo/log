@@ -15,7 +15,7 @@ func TestNoneProd(t *testing.T) {
 }
 
 func TestProductionDefault(t *testing.T) {
-	defer func() { _ = log.Sync() }() // 确保程序结束前日志flush存储
+	defer log.Sync() // 确保程序结束前日志flush存储
 
 	defer func() {
 		if err := recover(); err != nil {
