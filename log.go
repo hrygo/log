@@ -26,6 +26,7 @@ var std = New(os.Stdout, DebugLevel, WithCaller(true), zap.AddStacktrace(ErrorLe
 // 参照此方法根据需要自己修改合适的日志参数, 编写自己的初始化方法
 func ProductionDefault(opts ...Option) {
 	var tops = []TeeOption{
+		// 默认JSON格式
 		{
 			Filename: BasePath() + "all.log",
 			Ropt: RotateOptions{
@@ -38,6 +39,7 @@ func ProductionDefault(opts ...Option) {
 				return lvl <= FatalLevel && lvl > DebugLevel
 			},
 		},
+		// 设置为console格式
 		{
 			Filename: BasePath() + "error.log",
 			Ropt: RotateOptions{
@@ -45,6 +47,7 @@ func ProductionDefault(opts ...Option) {
 				MaxAge:     7,
 				MaxBackups: 10,
 				Compress:   false,
+				Format:     "console",
 			},
 			Lef: func(lvl Level) bool {
 				return lvl > InfoLevel
@@ -80,10 +83,11 @@ func ResetDefault(l *zap.Logger) {
 type Option = zap.Option
 
 type RotateOptions struct {
-	MaxSize    int  // 单个文件最大大小, 单位MB
-	MaxAge     int  // 文件最长保存天数
-	MaxBackups int  // 最大文件个数
-	Compress   bool // 是否开启压缩
+	MaxSize    int    // 单个文件最大大小, 单位MB
+	MaxAge     int    // 文件最长保存天数
+	MaxBackups int    // 最大文件个数
+	Compress   bool   // 是否开启压缩
+	Format     string // console or json
 }
 
 type LevelEnablerFunc func(lvl Level) bool
@@ -105,8 +109,11 @@ func NewTeeWithRotate(tops []TeeOption, opts ...Option) *zap.Logger {
 
 	for _, top := range tops {
 		top := top
-
-		lv := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		encoder := zapcore.NewJSONEncoder(cfg.EncoderConfig)
+		if top.Ropt.Format == "console" {
+			encoder = zapcore.NewConsoleEncoder(cfg.EncoderConfig)
+		}
+		lef := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 			return top.Lef(lvl)
 		})
 
@@ -118,11 +125,7 @@ func NewTeeWithRotate(tops []TeeOption, opts ...Option) *zap.Logger {
 			Compress:   top.Ropt.Compress,
 		})
 
-		core := zapcore.NewCore(
-			zapcore.NewJSONEncoder(cfg.EncoderConfig),
-			zapcore.AddSync(w),
-			lv,
-		)
+		core := zapcore.NewCore(encoder, zapcore.AddSync(w), lef)
 		cores = append(cores, core)
 	}
 
