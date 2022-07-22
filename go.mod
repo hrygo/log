@@ -1,4 +1,4 @@
-module github.com/ryhgo/log
+module github.com/hrygo/log
 
 go 1.18
 

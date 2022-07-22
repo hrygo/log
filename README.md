@@ -10,7 +10,7 @@
 package main
 
 import (
-	"github.com/ryhgo/log"
+	"github.com/hrygo/log"
 	"go.uber.org/zap"
 )
 

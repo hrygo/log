@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/ryhgo/log"
+	"github.com/hrygo/log"
 )
 
 func TestNoneProd(t *testing.T) {
