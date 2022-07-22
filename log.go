@@ -170,11 +170,10 @@ func BasePath() (path string) {
 	return
 }
 
-func Sync() error {
+func Sync() {
 	if std != nil {
-		return std.Sync()
+		_ = std.Sync()
 	}
-	return nil
 }
 
 func Default() *zap.Logger {

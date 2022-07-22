@@ -16,4 +16,8 @@
 
 # Golang
 .idea
+
+# macos
+.DS_Store
+
 logs
