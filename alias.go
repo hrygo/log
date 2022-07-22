@@ -15,8 +15,10 @@ const (
 	FatalLevel  Level = zap.FatalLevel  // 5, FatalLevel logs a message, then calls os.Exit(1)
 	DebugLevel  Level = zap.DebugLevel  // -1
 
-	JsonFormat    = "json"
-	ConsoleFormat = "console"
+	JsonFormat               = "json"
+	ConsoleFormat            = "console"
+	TimePrecisionSecond      = "second"
+	TimePrecisionMillisecond = "millisecond"
 )
 
 var (

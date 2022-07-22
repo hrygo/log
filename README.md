@@ -32,7 +32,9 @@ func main() {
 func ProductionDefault(opts ...log.Option) {
 	var tops = []log.TeeOption{
 		{
-			Filename: log.BasePath() + "all.log",
+			Filename:      log.BasePath() + "all.log",
+			TextFormat:    log.JsonFormat,
+			TimePrecision: log.TimePrecisionMillisecond,
 			Ropt: log.RotateOptions{
 				MaxSize:    100,
 				MaxAge:     30,
@@ -44,13 +46,14 @@ func ProductionDefault(opts ...log.Option) {
 			},
 		},
 		{
-			Filename: log.BasePath() + "error.log",
+			Filename:      log.BasePath() + "error.log",
+			TextFormat:    log.ConsoleFormat,
+			TimePrecision: log.TimePrecisionMillisecond,
 			Ropt: log.RotateOptions{
 				MaxSize:    10,
 				MaxAge:     7,
 				MaxBackups: 10,
 				Compress:   false,
-				Format:     log.ConsoleFormat,
 			},
 			Lef: func(lvl log.Level) bool {
 				return lvl > log.InfoLevel
