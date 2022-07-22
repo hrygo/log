@@ -34,6 +34,7 @@ func ProductionDefault(opts ...Option) {
 				MaxAge:     30,
 				MaxBackups: 100,
 				Compress:   true,
+				Format:     JsonFormat,
 			},
 			Lef: func(lvl Level) bool {
 				return lvl <= FatalLevel && lvl > DebugLevel
@@ -47,7 +48,7 @@ func ProductionDefault(opts ...Option) {
 				MaxAge:     7,
 				MaxBackups: 10,
 				Compress:   false,
-				Format:     "console",
+				Format:     ConsoleFormat,
 			},
 			Lef: func(lvl Level) bool {
 				return lvl > InfoLevel
@@ -110,7 +111,7 @@ func NewTeeWithRotate(tops []TeeOption, opts ...Option) *zap.Logger {
 	for _, top := range tops {
 		top := top
 		encoder := zapcore.NewJSONEncoder(cfg.EncoderConfig)
-		if top.Ropt.Format == "console" {
+		if top.Ropt.Format == ConsoleFormat {
 			encoder = zapcore.NewConsoleEncoder(cfg.EncoderConfig)
 		}
 		lef := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {

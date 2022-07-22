@@ -14,6 +14,9 @@ const (
 	PanicLevel  Level = zap.PanicLevel  // 4, PanicLevel logs a message, then panics
 	FatalLevel  Level = zap.FatalLevel  // 5, FatalLevel logs a message, then calls os.Exit(1)
 	DebugLevel  Level = zap.DebugLevel  // -1
+
+	JsonFormat    = "json"
+	ConsoleFormat = "console"
 )
 
 var (
