@@ -50,7 +50,7 @@ func ProductionDefault(opts ...log.Option) {
 				MaxAge:     7,
 				MaxBackups: 10,
 				Compress:   false,
-				Format:     "console",
+				Format:     log.ConsoleFormat,
 			},
 			Lef: func(lvl log.Level) bool {
 				return lvl > log.InfoLevel
