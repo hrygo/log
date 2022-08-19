@@ -167,6 +167,10 @@ func Sync() {
   }
 }
 
+func Default() *zap.Logger {
+  return std
+}
+
 // 根据 TextFormat 参数 或 环境变量 LOG_TIME_FORMAT 的值来设置日期格式
 func timeFormat(precision string, t *time.Time, enc zapcore.PrimitiveArrayEncoder) {
   if precision != "" {
