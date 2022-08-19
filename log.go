@@ -17,7 +17,6 @@ import (
 // 3. 使用 ProductionDefault 进行生产环境日志设置时，环境变量 CONF_LOG_PATH 用于设置日志路径，默认为执行程序的当前目录下的logs目录
 
 type Level = zapcore.Level
-
 type Field = zap.Field
 
 var std = New(os.Stdout, DebugLevel, WithCaller(true), zap.AddStacktrace(ErrorLevel))
@@ -37,9 +36,7 @@ func ProductionDefault(opts ...Option) {
         MaxBackups: 100,
         Compress:   true,
       },
-      LvlEnableFunc: func(lvl Level) bool {
-        return lvl <= FatalLevel && lvl > DebugLevel
-      },
+      Level: InfoLevel,
     },
     // 设置为console格式
     {
@@ -52,9 +49,7 @@ func ProductionDefault(opts ...Option) {
         MaxBackups: 10,
         Compress:   false,
       },
-      LvlEnableFunc: func(lvl Level) bool {
-        return lvl > InfoLevel
-      },
+      Level: WarnLevel,
     },
   }
 
@@ -95,11 +90,11 @@ type RotateOptions struct {
 type LevelEnablerFunc func(lvl Level) bool
 
 type TeeOption struct {
-  Filename      string           // 日志文件名
-  TimePrecision string           // 记录日志时，相关的时间精度，该参数选项：second、millisecond，分别表示 秒 和 毫秒 ,默认为毫秒级别
-  TextFormat    string           // 日志文本格式 console or json
-  Ropt          RotateOptions    // 日志分隔轮转配置
-  LvlEnableFunc LevelEnablerFunc // 日志级别生效设置函数
+  Filename      string               // 日志文件名
+  TimePrecision string               // 记录日志时，相关的时间精度，该参数选项：second、millisecond，分别表示 秒 和 毫秒 ,默认为毫秒级别
+  TextFormat    string               // 日志文本格式 console or json
+  Ropt          RotateOptions        // 日志分隔轮转配置
+  Level         zapcore.LevelEnabler // 日志级别生效级别
 }
 
 func NewTeeWithRotate(tops []TeeOption, opts ...Option) *zap.Logger {
@@ -119,10 +114,6 @@ func NewTeeWithRotate(tops []TeeOption, opts ...Option) *zap.Logger {
     if top.TextFormat == ConsoleFormat {
       encoder = zapcore.NewConsoleEncoder(cfg.EncoderConfig)
     }
-    // LevelEnablerFunc
-    lef := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-      return top.LvlEnableFunc(lvl)
-    })
     // 日志分隔轮转配置
     w := zapcore.AddSync(&lumberjack.Logger{
       Filename:   top.Filename,
@@ -132,7 +123,7 @@ func NewTeeWithRotate(tops []TeeOption, opts ...Option) *zap.Logger {
       Compress:   top.Ropt.Compress,
     })
 
-    core := zapcore.NewCore(encoder, zapcore.AddSync(w), lef)
+    core := zapcore.NewCore(encoder, zapcore.AddSync(w), top.Level)
     cores = append(cores, core)
   }
 
@@ -174,10 +165,6 @@ func Sync() {
   if std != nil {
     _ = std.Sync()
   }
-}
-
-func Default() *zap.Logger {
-  return std
 }
 
 // 根据 TextFormat 参数 或 环境变量 LOG_TIME_FORMAT 的值来设置日期格式
